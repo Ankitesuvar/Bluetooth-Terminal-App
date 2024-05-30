@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="editTextFileName" type="id" />
+    <item name="editText" type="id" />
+    <item name="editTextMobile" type="id" />
+    <item name="editTextEmail" type="id" />
+    <item name="buttonCreateExcel" type="id" />
+    <item name="btnIntent" type="id" />
+    <item name="buttonCreateCsvFile" type="id" />
+</resources>
