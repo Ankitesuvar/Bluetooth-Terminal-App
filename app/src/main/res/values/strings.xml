@@ -2,12 +2,20 @@
     <!--    <style name="AppTheme." parent="Theme.AppCompat.Light.NoActionBar">-->
 
 
-    <string name="app_name">Simple Bluetooth Terminal</string>
+    <string name="app_name">Walker Boot</string>
     <string name="devices">Bluetooth Devices</string>
 
     <string name="bluetooth_permission_title">Bluetooth permission</string>
     <string name="bluetooth_permission_grant">Bluetooth permission is required by this App. Please grant in next dialog.</string>
     <string name="bluetooth_permission_denied">Bluetooth permission was permanently denied. You have to enable permission \"%s\" in App settings.</string>
     <string name="save_data">Save Data</string>
+
+    <!--    Notification-->
+    <string name="channel_name">Data Notification</string>
+    <string name="channel_description">Notifications for when the sum of split data crosses a threshold</string>
+    <string name="play_sound_notification">Play Sound Notification</string>
+    <string name="sound_notification">Sound Notification</string>
+
+
     <!--    </style>-->
 </resources>

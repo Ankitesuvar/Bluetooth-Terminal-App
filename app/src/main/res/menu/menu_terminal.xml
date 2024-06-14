@@ -7,6 +7,11 @@
         android:title="Clear"
         app:showAsAction="always" />
     <item
+        android:id="@+id/logo"
+        android:icon="@drawable/tynor"
+        android:title="Clear"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/newline"
         android:title="Newline"
         app:showAsAction="never" />
@@ -26,6 +31,5 @@
         android:title="New Page"
         android:orderInCategory="100"
         app:showAsAction="never" />
-
 
 </menu>
