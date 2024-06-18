@@ -28,7 +28,13 @@
 
     <item
         android:id="@+id/action_new_page"
-        android:title="New Page"
+        android:title="Import CSV File"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_new_page2"
+        android:title="Import Graph"
         android:orderInCategory="100"
         app:showAsAction="never" />
 

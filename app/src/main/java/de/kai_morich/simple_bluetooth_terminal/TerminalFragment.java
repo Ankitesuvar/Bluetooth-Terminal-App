@@ -226,6 +226,16 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
             startActivity(intent);
             return true;
         }
+        else if (id == R.id.action_new_page2) {
+            Intent intent = new Intent(getActivity(), GraphActivity.class);
+            //intent.putExtra("receivedData", getReceivedData().toString());
+
+            //Extra
+            intent.putStringArrayListExtra("splitData", new ArrayList<>(splitData));
+            //Extra
+            startActivity(intent);
+            return true;
+        }
         // ... (existing code)
         else{
             return super.onOptionsItemSelected(item);

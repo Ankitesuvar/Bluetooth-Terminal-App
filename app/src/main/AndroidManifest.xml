@@ -28,6 +28,9 @@
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
         <activity
+            android:name=".GraphActivity"
+            android:exported="false" />
+        <activity
             android:name=".SaveDataActivity"
             android:exported="true" />
         <activity
