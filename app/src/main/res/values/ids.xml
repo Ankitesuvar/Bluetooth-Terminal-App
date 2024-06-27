@@ -7,4 +7,10 @@
     <item name="buttonCreateExcel" type="id" />
     <item name="btnIntent" type="id" />
     <item name="buttonCreateCsvFile" type="id" />
+    <item name="send_btn" type="id" />
+    <item name="send_text" type="id" />
+    <item name="deloading_threshold_input" type="id" />
+    <item name="set_threshold_button" type="id" />
+    <item name="live_data_text" type="id" />
+    <item name="past_data_text" type="id" />
 </resources>

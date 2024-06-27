@@ -24,6 +24,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,6 +47,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.media.RingtoneManager;
 import android.net.Uri;
+//Notification
 
 
 
@@ -66,12 +70,25 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     private final StringBuilder receivedData = new StringBuilder();
     //Notification
     static final String NOTIFICATION_CHANNEL_ID = "data_notification_channel";
-
     //Extra
+
+    //Notification
+    private EditText deloadingThresholdInput;
+    private Button setThresholdButton;
+    private double deloadingThreshold = 20.0; // Default value
+    private TextView currentThresholdDisplay;
+    //Notification
+
+    //Scroll
+    private TextView pastDataText;
+    private TextView liveDataText;
+    //Scroll
 
     /*
      * Lifecycle
      */
+
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -145,12 +162,16 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     /*
      * UI
      */
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_terminal, container, false);
-        receiveText = view.findViewById(R.id.receive_text);                           // TextView performance decreases with number of spans
-        receiveText.setTextColor(getResources().getColor(R.color.colorRecieveText));  // set as default color to reduce number of spans
-        receiveText.setMovementMethod(ScrollingMovementMethod.getInstance());
+        //Scroll
+        pastDataText = view.findViewById(R.id.past_data_text);                           // TextView performance decreases with number of spans
+        liveDataText = view.findViewById(R.id.live_data_text);
+        pastDataText.setTextColor(getResources().getColor(R.color.colorRecieveText));  // set as default color to reduce number of spans
+        //Scroll
+        pastDataText.setMovementMethod(ScrollingMovementMethod.getInstance());
 
         sendText = view.findViewById(R.id.send_text);
         hexWatcher = new TextUtil.HexWatcher(sendText);
@@ -160,6 +181,13 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 
         View sendBtn = view.findViewById(R.id.send_btn);
         sendBtn.setOnClickListener(v -> send(sendText.getText().toString()));
+
+        //Notification
+        deloadingThresholdInput = view.findViewById(R.id.deloading_threshold_input);
+        setThresholdButton = view.findViewById(R.id.set_threshold_button);
+        setThresholdButton.setOnClickListener(v -> setDeloadingThreshold());
+        currentThresholdDisplay = view.findViewById(R.id.current_threshold_display);
+        //Notification
         return view;
     }
 
@@ -183,7 +211,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.clear) {
-            receiveText.setText("");
+            pastDataText.setText("");
             return true;
         } else if (id == R.id.newline) {
             String[] newlineNames = getResources().getStringArray(R.array.newline_names);
@@ -283,7 +311,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
             }
             SpannableStringBuilder spn = new SpannableStringBuilder(msg + '\n');
             spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            receiveText.append(spn);
+            pastDataText.append(spn);
             service.write(data);
 
         } catch (Exception e) {
@@ -306,7 +334,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
                         if(spn.length() >= 2) {
                             spn.delete(spn.length() - 2, spn.length());
                         } else {
-                            Editable edt = receiveText.getEditableText();
+                            Editable edt = pastDataText.getEditableText();
                             if (edt != null && edt.length() >= 2)
                                 edt.delete(edt.length() - 2, edt.length());
                         }
@@ -316,13 +344,13 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
                 spn.append(TextUtil.toCaretString(msg, newline.length() != 0));
             }
         }
-        receiveText.append(spn);
+        pastDataText.append(spn);
     }
 
     private void status(String str) {
         SpannableStringBuilder spn = new SpannableStringBuilder(str + '\n');
         spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorStatusText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        receiveText.append(spn);
+        pastDataText.append(spn);
     }
 
     /*
@@ -412,20 +440,56 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 //        receiveText.setText(sb.toString());
 //    }
 
+    //Notification
+    private void setDeloadingThreshold() {
+        String input = deloadingThresholdInput.getText().toString();
+        if (!input.isEmpty()) {
+            try {
+                deloadingThreshold = Double.parseDouble(input);
+                currentThresholdDisplay.setText(String.format("Current Deloading Threshold: %.1f%%", deloadingThreshold));
+                Toast.makeText(getContext(), "Threshold set to " + deloadingThreshold + "%", Toast.LENGTH_SHORT).show();
+            } catch (NumberFormatException e) {
+                Toast.makeText(getContext(), "Invalid input. Please enter a valid number.", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(getContext(), "Please enter a threshold value.", Toast.LENGTH_SHORT).show();
+        }
+    }
+    //Notification
 
     //Notification
     private void updateUI() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < splitData.size(); i++) {
-            sb.append(i).append(": ").append(splitData.get(i)).append("\n");
+        //StringBuilder sb = new StringBuilder();
 
-            if (i % 2 == 0 && i + 1 < splitData.size()) {
+        //Scroll
+        StringBuilder pastDataBuilder = new StringBuilder(pastDataText.getText());
+        StringBuilder liveDataBuilder = new StringBuilder();
+        //scroll
+
+        for (int i = 0; i < splitData.size(); i++) {
+            //sb.append(i).append(": ").append(splitData.get(i)).append("\n");
+
+            //scroll
+            String dataItem1 = i + ": " + splitData.get(i) + "\n";
+            //String dataItem2 = i + ": " + splitData.get(i-2) + "\n";
+
+            if (i == splitData.size() - 1) {
+                // This is the most recent data, so it goes in the live data TextView
+                liveDataBuilder.append(i - 2).append(" weight1: ").append(splitData.get(i - 2)).append("\n");
+                liveDataBuilder.append(i).append(" weight2: ").append(splitData.get(i));
+            } else {
+                // This is past data, so it goes in the scrolling TextView
+                pastDataBuilder.append(dataItem1);
+            }
+            //scroll
+
+            if ((i + 3) % 4 == 0 && i + 2 < splitData.size()) {
                 double deloading;
                 try {
                     double value1 = Double.parseDouble(splitData.get(i));
-                    double value2 = Double.parseDouble(splitData.get(i + 1));
+                    double value2 = Double.parseDouble(splitData.get(i + 2));
                     deloading = ((value1 - value2) / value1) * 100;
-                    if (deloading < 20) {
+                    if (deloading < deloadingThreshold) {
                         showDataNotification(deloading);
                     }
                 } catch (NumberFormatException e) {
@@ -435,7 +499,15 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
                 }
             }
         }
-        receiveText.setText(sb.toString());
+        //pastDataText.setText(sb.toString());
+
+        //Scroll
+        pastDataText.setText(pastDataBuilder.toString());
+        liveDataText.setText(liveDataBuilder.toString());
+        // Scroll to the bottom of the past data
+        final ScrollView scrollView = (ScrollView) pastDataText.getParent();
+        scrollView.post(() -> scrollView.fullScroll(View.FOCUS_DOWN));
+        //Scroll
     }
 
         //Notification
@@ -473,39 +545,6 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
                 notificationManager.createNotificationChannel(channel);
             }
         }
-//    private void updateUI() {
-//        StringBuilder sb = new StringBuilder();
-//        int i = 0;
-//        while (i < splitData.size()) {
-//            sb.append(i).append(": ").append(splitData.get(i)).append("\n");
-//            i += 2;
-//        }
-//        receiveText.setText(sb.toString());
-//    }
-
-
-//    private void updateUI() {
-//        StringBuilder sb = new StringBuilder();
-//        for (int i = 0; i < splitData.size(); i++) {
-//             if (i % 2 == 1) { // Check if the index is even
-//                sb.append(i).append(": ").append(splitData.get(i));
-//            }
-//        }
-//        receiveText.setText(sb.toString());
-//    }
-
-//    private void updateUI() {
-//        StringBuilder sb = new StringBuilder();
-//        int i = 0;
-//        while (i < splitData.size()) {
-//            if ((i+1) % 2 == 0) { // Check if the index is even
-//                sb.append(i).append(": ").append(splitData.get(i));
-//            }
-//            i++;
-//        }
-//        receiveText.setText(sb.toString());
-//    }
-
     //Extra
 
     @Override
@@ -514,8 +553,6 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         disconnect();
 
     }
-
-
 
    // Extra
     //private StringBuilder receivedData = new StringBuilder();

@@ -16,8 +16,10 @@ import java.util.ArrayList;
 public class GraphActivity extends AppCompatActivity {
 
     private LineChart mChart;
-    private static final int MAX_ENTRIES = 20; // Maximum number of data points to display
 
+    //max data show on ui
+    private static final int MAX_ENTRIES = 20; // Maximum number of data points to display
+   //max data show on ui
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,9 +46,9 @@ public class GraphActivity extends AppCompatActivity {
         for (int i = 0; i < dataList.size(); i++) {
             try {
                 float val = Float.parseFloat(dataList.get(i));
-                if (i % 2 == 0) {
+                if ((i+3) % 4 == 0) {
                     yVal1.add(new Entry(i / 2, val));
-                } else {
+                } else if((i+1) % 4 == 0){
                     yVal2.add(new Entry(i / 2, val));
                 }
             } catch (NumberFormatException e) {
@@ -54,13 +56,14 @@ public class GraphActivity extends AppCompatActivity {
             }
         }
 
-        // Trim the data lists to keep only the latest MAX_ENTRIES points
-        while (yVal1.size() > MAX_ENTRIES) {
-            yVal1.remove(0);
-        }
-        while (yVal2.size() > MAX_ENTRIES) {
-            yVal2.remove(0);
-        }
+//        // Trim the data lists to keep only the latest MAX_ENTRIES points
+//        while (yVal1.size() > MAX_ENTRIES) {
+//            yVal1.remove(0);
+//        }
+//        while (yVal2.size() > MAX_ENTRIES) {
+//            yVal2.remove(0);
+//        }
+//        //max data show on UI
 
 
 
@@ -83,6 +86,9 @@ public class GraphActivity extends AppCompatActivity {
         LineData data = new LineData(set1, set2);
         mChart.setData(data);
         mChart.invalidate(); // refresh
-        mChart.moveViewToX(yVal1.size() - MAX_ENTRIES); // Shift the graph to the right
+
+//        //max data show on UI
+//        mChart.moveViewToX(yVal1.size() - MAX_ENTRIES); // Shift the graph to the right
+//        //max data show on UI
     }
 }
